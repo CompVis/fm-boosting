@@ -32,7 +32,7 @@ underlying DMs, making it easily integrable into various DM frameworks.
 ![pipeline](figs/pipeline_SR.png)
 
 
-## Preliminary Results
+## Results
 
 ![frontpage](https://github.com/CompVis/fm-boosting/blob/main/figs/front-page-fig.png)
 Samples synthesized in $`1024^2`$ px. We elevate DMs and similar architectures to a higher-resolution domain, achieving exceptionally rapid processing speeds. We leverage the [Latent Consistency Models (LCM)](https://arxiv.org/abs/2310.04378), distilled from [SD1.5](https://arxiv.org/abs/2112.10752)  and [SDXL](https://arxiv.org/abs/2307.01952) respectively. To achieve the same resolution as LCM (SDXL), we boost LCM (SD1.5) with our general Coupling Flow Matching (CFM) model. This yields a further speedup in the synthesis process and enables the generation of high-resolution images of high fidelity in an average $`0.347`$ seconds. The LCM (SDXL) model fails to produce competitive results within this shortened timeframe, highlighting the effectiveness of our approach in achieving both speed and quality in image synthesis.
