@@ -18,7 +18,7 @@ CompVis Group, LMU Munich
 
 
 
-## **[Preprint](https://github.com/CompVis/fm-boosting/blob/main/Boosting_LMD_FM.pdf)**
+## **[Preprint](https://github.com/CompVis/fm-boosting/blob/main/Boosting_LDM_with_FM.pdf)**
 
 ## Abstract
 
