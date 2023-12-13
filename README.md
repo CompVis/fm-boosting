@@ -18,7 +18,7 @@ CompVis Group, LMU Munich
 
 
 
-## **[Preprint](https://github.com/CompVis/fm-boosting/blob/main/Boosting_LDM_with_FM.pdf)**
+## **[Preprint](https://arxiv.org/abs/2312.07360)**
 
 ## Abstract
 
@@ -43,7 +43,7 @@ Samples synthesized in $`1024^2`$ px. We elevate DMs and similar architectures t
 
 ---
 
-![](https://github.com/CompVis/fm-boosting/blob/main/figs/LHQ.jpg)
+![LHQ](https://github.com/CompVis/fm-boosting/blob/main/figs/LHQ.jpg)
 
 Super-resolution samples from the LHQ dataset. *Left*: low-resolution ground truth image bi-linearly up-sampled. *Right*: high resolution image up-sampled in latent space with our CFM model.
 
