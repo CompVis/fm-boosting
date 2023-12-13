@@ -33,22 +33,22 @@ achieve state-of-the-art high-resolution image synthesis at $1024^2$ with minima
 cost. Importantly, our approach is orthogonal to recent approximation and speed-up strategies for the
 underlying DMs, making it easily integrable into various DM frameworks.
 
-![pipeline](assets/figs/pipeline_SR.png)
+![pipeline](https://github.com/CompVis/fm-boosting/blob/main/assets/figs/pipeline_SR.png)
 
 
 ## Results
 
-![frontpage](assets/figs/front-page-fig.png)
+![frontpage](https://github.com/CompVis/fm-boosting/blob/main/assets/figs/front-page-fig.png)
 Samples synthesized in $`1024^2`$ px. We elevate DMs and similar architectures to a higher-resolution domain, achieving exceptionally rapid processing speeds. We leverage the [Latent Consistency Models (LCM)](https://arxiv.org/abs/2310.04378), distilled from [SD1.5](https://arxiv.org/abs/2112.10752)  and [SDXL](https://arxiv.org/abs/2307.01952) respectively. To achieve the same resolution as LCM (SDXL), we boost LCM (SD1.5) with our general Coupling Flow Matching (CFM) model. This yields a further speedup in the synthesis process and enables the generation of high-resolution images of high fidelity in an average $`0.347`$ seconds. The LCM (SDXL) model fails to produce competitive results within this shortened timeframe, highlighting the effectiveness of our approach in achieving both speed and quality in image synthesis.
 
 ---
 
-![LHQ](assets/figs/LHQ.jpg)
+![LHQ](https://github.com/CompVis/fm-boosting/blob/main/assets/figs/LHQ.jpg)
 
 Super-resolution samples from the LHQ dataset. *Left*: low-resolution ground truth image bi-linearly up-sampled. *Right*: high resolution image up-sampled in latent space with our CFM model.
 
 ---
 
-![faces_zoom](assets/figs/faces-hq-zoom.png)
+![faces_zoom](https://github.com/CompVis/fm-boosting/blob/main/assets/figs/faces-hq-zoom.png)
 Up-sampling results with resolution $`1024 \times 1024`$ on the FacesHQ dataset. *Left*: Regression model trained in latent space with the same number of parameters as the flow matching model. *Middle*: Bi-linear up-sampling of the low-resolution image in pixel space. *Right*: Up-sampling in latent space $`32^2 \rightarrow 128^2`$ with our Conditional Flow Matching model and Dormand-Prince ODE solver.
 
