@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="description"
+        content="Boosting Latent Diffusion with Flow Matching">
+  <meta name="keywords" content="high-resolution image synthesis, super resolution">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="fm-boosting">
+  <meta name="twitter:description" content="Boosting Latent Diffusion with Flow Matching">
+  <meta name="twitter:creator" content="mgui">
+
+  <title>Boosting Latent Diffusion with Flow Matching</title>
+
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-1FWSVCGZTG"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+
+    function gtag() {
+      dataLayer.push(arguments);
+    }
+
+    gtag('js', new Date());
+
+    gtag('config', 'G-1FWSVCGZTG');
+  </script>
+
+  <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro"
+        rel="stylesheet">
+
+  <link rel="stylesheet" href="./css/bulma.min.css">
+  <link rel="stylesheet" href="./css/bulma-carousel.min.css">
+  <link rel="stylesheet" href="./css/bulma-slider.min.css">
+  <link rel="stylesheet" href="./css/twentytwenty.css">
+  <link rel="stylesheet" href="./css/index.css">
+  <!-- <link rel="icon" href="./images/radio.png"> -->
+
+  <script src="./js/jquery-3.2.1.min.js"></script>
+  <script src="./js/jquery.event.move.js"></script>
+  <script src="./js/jquery.twentytwenty.js"></script>
+  <script src="./js/bulma-carousel.min.js"></script>
+  <script src="./js/bulma-slider.min.js"></script>
+  <script src="./js/fontawesome.all.min.js"></script>
+
+  <!--MathJax-->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']]
+      },
+      svg: {
+        fontCache: 'global'
+      }
+    };
+  </script>
+  <script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+
+
+<section class="hero">
+  <div class="hero-body">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered">
+        <div class="column has-text-centered">
+          <h1 class="title is-1 publication-title">Boosting Latent Diffusion with Flow Matching</h1>
+          <div class="is-size-5 publication-authors">
+            <span class="author-block">Johannes S. Fischer<sup>*</sup>,</span>
+            <span class="author-block">Ming Gui<sup>*</sup>,</span>
+            <span class="author-block">Pingchuan Ma<sup>*</sup>,</span>
+            <span class="author-block">Nick Stracke,</span>
+            <span class="author-block">Stefan A. Baumann,</span>
+            <span class="author-block">Björn Ommer</span>
+          </div>
+
+          <div class="is-size-5 publication-authors">
+            <span class="author-block">CompVis @ LMU Munich, MCML</span>
+          </div>
+
+          <div class="column has-text-centered">
+            <div class="publication-links">
+              <span class="link-block">
+                <a href="https://arxiv.org/abs/2312.07360" target="_blank" rel="noopener noreferrer"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <i class="fas fa-file-pdf" style="color: orangered"></i>
+                  </span>
+                  <span>Paper</span>
+                </a>
+              </span>
+              <!-- Code Link. -->
+              <span class="link-block">
+                <a href="https://github.com/CompVis/fm-boosting" target="_blank" rel="noopener noreferrer"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <i class="fab fa-github"></i>
+                  </span>
+                  <span>Code</span>
+                </a>
+              </span>
+              <!-- Colab Link. -->
+              <!-- <span class="link-block">
+                <a href="https://colab.research.google.com/drive/xxx-u?usp=sharing" target="_blank" rel="noopener noreferrer"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                    <img src="images/colab.svg">
+                  </span>
+                  <span>&nbsp;Google Colab</span>
+                </a>
+              </span> -->
+              <!-- Hugging Face. -->
+              <!-- <span class="link-block">
+                <a href="https://huggingface.co/spaces/xxx" target="_blank" rel="noopener noreferrer"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      &#129303;
+                  </span>
+                  <span>Hugging Face Space</span>
+                </a>
+              </span> -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="hero teaser">
+  <div class="container is-max-desktop">
+    <div class="hero-body">
+      <center><img id="teaser" width="100%" src="images/cover_comparison.jpg" alt="Teaser image demonstrating SD+CFM."/></center>
+      <!-- <h2 class="subtitle has-text-centered">
+        <span class="methodname">Marigold</span> is the new state-of-the-art depth estimator for images in the wild.
+      </h2> -->
+    </div>
+  </div>
+</section>
+
+
+<section class="section pt-0">
+  <div class="container is-max-desktop">
+    <!-- Abstract. -->
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Overview</h2>
+        <div class="content has-text-justified">
+          <p>
+            In this work, we leverage the complementary strengths of Diffusion Models (DMs), Flow Matching models (FMs), and Variational AutoEncoders (VAEs): 
+            the diversity of stochastic DMs, the speed of FMs in training and inference stages, and the efficiency of a convolutional decoder to map latents into pixel space. 
+            This synergy results in a small diffusion model that excels in generating diverse samples at a low resolution. Flow Matching then takes a direct path from this lower-resolution representation to a higher-resolution latent, 
+            which is subsequently translated into a high-resolution image by a convolutional decoder.
+            We achieve competitive high-resolution image synthesis at $1024^2$ and $2048^2$ pixels with minimal computational cost.
+          </p>
+        </div>
+      </div>
+    </div>
+    <!--/ Abstract. -->
+  </div>
+</section>
+
+<section class="hero is-light is-small">
+  <div class="hero-body">
+    <div class="container">
+      <div id="results-carousel-big" class="carousel results-carousel">
+
+        <div class="twoitem">
+          <div class="twentytwenty-container twentytwenty-container-big">
+            <div class="cmpcontent">
+              <img src="./images/water_up_nn.jpg">
+            </div>
+            <div class="cmpcontent">
+              <img src="./images/water_fm_fm.jpg">
+            </div>
+          </div> 
+        </div>
+
+        <div class="twoitem">
+          <div class="twentytwenty-container twentytwenty-container-big">
+            <div class="cmpcontent">
+              <img src="./images/univ_up_nn.jpg">
+            </div>
+            <div class="cmpcontent">
+              <img src="./images/univ_fm_fm.jpg">
+            </div>
+          </div> 
+        </div>
+
+      </div>
+
+      <div id="results-carousel-small" class="carousel results-carousel">
+
+        <div class="twoitem">
+          <div class="twentytwenty-container twentytwenty-container-small">
+            <div class="cmpcontent">
+              <img src="./images/results/div2k/000019_lr.png">
+            </div>
+            <div class="cmpcontent">
+              <img src="./images/results/div2k/000019_pred.png">
+            </div>
+          </div> 
+        </div>
+
+        <div class="twoitem">
+          <div class="twentytwenty-container twentytwenty-container-small">
+            <div class="cmpcontent">
+              <img src="./images/results/div2k/000020_lr.png">
+            </div>
+            <div class="cmpcontent">
+              <img src="./images/results/div2k/000020_pred.png">
+            </div>
+          </div> 
+        </div>
+
+        <div class="twoitem">
+          <div class="twentytwenty-container twentytwenty-container-small">
+            <div class="cmpcontent">
+              <img src="./images/results/div2k/000043_lr.png">
+            </div>
+            <div class="cmpcontent">
+              <img src="./images/results/div2k/000043_pred.png">
+            </div>
+          </div> 
+        </div>
+
+        <div class="twoitem">
+          <div class="twentytwenty-container twentytwenty-container-small">
+            <div class="cmpcontent">
+              <img src="./images/results/div2k/000077_lr.png">
+            </div>
+            <div class="cmpcontent">
+              <img src="./images/results/div2k/000077_pred.png">
+            </div>
+          </div> 
+        </div>
+
+        <div class="twoitem">
+          <div class="twentytwenty-container twentytwenty-container-small">
+            <div class="cmpcontent">
+              <img src="./images/results/div2k/000044_lr.png">
+            </div>
+            <div class="cmpcontent">
+              <img src="./images/results/div2k/000044_pred.png">
+            </div>
+          </div> 
+        </div>
+
+        <div class="twoitem">
+          <div class="twentytwenty-container twentytwenty-container-small">
+            <div class="cmpcontent">
+              <img src="./images/results/div2k/000105_lr.png">
+            </div>
+            <div class="cmpcontent">
+              <img src="./images/results/div2k/000105_pred.png">
+            </div>
+          </div> 
+        </div>
+
+        <div class="twoitem">
+          <div class="twentytwenty-container twentytwenty-container-small">
+            <div class="cmpcontent">
+              <img src="./images/results/div2k/000109_lr.png">
+            </div>
+            <div class="cmpcontent">
+              <img src="./images/results/div2k/000109_pred.png">
+            </div>
+          </div> 
+        </div>
+      
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container is-max-desktop">
+    <!-- Method. -->
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Methods</h2>
+        <div class="content has-text-justified">
+
+          <img id="method" width="100%" src="./images/pipeline.jpg" alt="Boosting training scheme"/>
+
+          <h3 class="title has-text-centered">
+            Approach overview
+          </h3>
+          <p>
+            During training we feed both a low- and a high-res image through the pre-trained encoder to obtain a low- and a high-res latent code.
+            Our model is trained to regress a vector field which forms a probability path from the low- to the high-res latent within $t \in [0, 1]$.
+            During inference we can take any diffusion model, generate the low-res latent, and then use our coupling flow matching model to synthesize the higher dimensional latent code. 
+            Finally, the pre-trained decoder projects the latent code back to pixel space.
+          </p>
+
+          <!-- <h3 class="title has-text-centered">
+            Coupling flow matching
+          </h3>
+          <p>
+            As we have access to both low-res and high-res latents during training, we can utilize the relationship between both latents and train our coupling flow matching model 
+            to directly map the low-resolution latent to the high-resolution latent, rather than mapping from noise.
+            We find this more efficient and more performant than the traditional approach of training a flow matching or a diffusion model.
+          </p>
+
+          <h3 class="title has-text-centered">
+            Noise augmentation
+          </h3>
+          <p>
+            We empirically discover that augmenting our low-res latent with a specific amount of Gaussian noise enhances performance. 
+            We hypothesize that including a small amount of Gaussian noise smoothes the base probability density $p_0$ so that it remains well-defined over the high-dimensional space.
+          </p> -->
+        </div>
+      </div>
+    </div>
+    <!--/ Method. -->
+  </div>
+</section>
+
+<section class="hero is-light is-small">
+  <div class="hero-body">
+    <div class="container">
+      <center><h3><b>Gallery for synthesized 1k images</b></h3></center>
+      <div id="results-carousel-mid" class="carousel results-carousel">
+        <img src="./images/results/1k/sample_0000_fm.jpg">
+        <img src="./images/results/1k/sample_0003_fm.jpg">
+        <img src="./images/results/1k/sample_0007_fm.jpg">
+        <img src="./images/results/1k/sample_0014_fm.jpg">
+        <img src="./images/results/1k/sample_0015_fm.jpg">
+        <img src="./images/results/1k/sample_0044_fm.jpg">
+        <img src="./images/results/1k/sample_0047_fm.jpg">
+        <img src="./images/results/1k/sample_0060_fm.jpg">
+        <img src="./images/results/1k/sample_0066_fm.jpg">
+        <img src="./images/results/1k/sample_0068_fm.jpg">
+        <img src="./images/results/1k/sample_0072_fm.jpg">
+        <img src="./images/results/1k/sample_0075_fm.jpg">
+        <img src="./images/results/1k/sample_0079_fm.jpg">
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="hero is-light is-small">
+  <div class="hero-body">
+    <div class="container">
+      <center><h3><b>Gallery for synthesized 2k images</b></h3></center>
+      <div id="results-carousel-big" class="carousel results-carousel">
+        <img src="./images/results/2k/balloons.jpg">
+        <img src="./images/results/2k/butterfly.jpg">
+        <img src="./images/results/2k/lion.jpg">
+        <img src="./images/results/2k/mountain.jpg">
+        <img src="./images/results/2k/scenery.jpg">
+        <img src="./images/results/2k/sunset.jpg">
+        <img src="./images/results/2k/squirrel.jpg">
+        <img src="./images/results/2k/turtle.jpg">
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container is-max-desktop">
+    <!-- Method. -->
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <div class="content has-text-justified">
+
+          <h3 class="title has-text-centered">
+            Comparison with the other state-of-the-art methods
+          </h3>
+          <p>
+            We show quantitative comparison of our methods zero-shot with several state-of-the-art methods on two datasets. 
+            Bold numbers are the best, underscored second best. Our method achieves a good trade-off between performance and computational cost.
+          </p>
+
+          <center><img id="comparison" width="100%" src="./images/baseline-comparison-caption.jpg" alt="Comparison with other methods"/></center>
+          <center><img id="comparison" width="50%" src="./images/coco-comparison-caption.jpg" alt="Comparison with other methods"/></center>
+
+          <h3 class="title has-text-centered">
+            Degraded image super-resolution
+          </h3>
+          <p>
+            While our main goal is to be a plug-and-play method for boosting the resolution of diffusion models, 
+            our method can also be generalized for super-resolution tasks, where the low-res images are degraded with e.g., JPEG artifacts.
+            In the table below we show that our method also excels in this task, achieving competitive results on two standard benchmark datasets.
+          </p>
+          
+          <center><img id="comparison" width="80%" src="./images/deg-comparison.jpg" alt="Comparison with other methods"/></center>
+
+          <p class="mt-5">
+            Refer to the pdf paper linked above for more details on qualitative, quantitative, and ablation studies.
+          </p>
+        </div>
+      </div>
+    </div>
+    <!--/ Method. -->
+  </div>
+</section>
+
+
+
+<script>
+  $(window).on('load', function() {
+
+    bulmaCarousel.attach('#results-carousel-big', {
+      slidesToScroll: 1,
+      slidesToShow: 2,
+      loop: true,
+      autoplay: true,
+    });
+    bulmaCarousel.attach('#results-carousel-mid', {
+      slidesToScroll: 1,
+      slidesToShow: 3,
+      loop: true,
+      autoplay: true,
+    });
+    bulmaCarousel.attach('#results-carousel-small', {
+      slidesToScroll: 1,
+      slidesToShow: 4,
+      loop: true,
+      autoplay: true,
+    });
+
+    $(".twentytwenty-container-bottom").twentytwenty({
+      before_label: '128px LowRes',
+      after_label: '2048px Ours',
+      default_offset_pct: 0.35,
+    });
+    $(".twentytwenty-container-big").twentytwenty({
+      before_label: '128px LRes',
+      after_label: '2048px Ours',
+      default_offset_pct: 0.35,
+    });
+    $(".twentytwenty-container-small").twentytwenty({
+      before_label: 'Deg LRes',
+      after_label: 'Ours',
+      default_offset_pct: 0.35,
+    });
+  });
+</script>
+
+
+<section class="section pt-0" id="BibTeX">
+  <div class="container is-max-desktop content">
+    <h2 class="title">Citation</h2>
+    <pre class="selectable"><code>@misc{fischer2023boosting,
+      title={Boosting Latent Diffusion with Flow Matching}, 
+      author={Johannes S. Fischer and Ming Gui and Pingchuan Ma and Nick Stracke and Stefan A. Baumann and Björn Ommer},
+      year={2023},
+      eprint={2312.07360},
+      archivePrefix={arXiv},
+      primaryClass={cs.CV}
+}
+</code></pre>
+  </div>
+</section>
+
+
+<footer class="footer pt-4 pb-0">
+  <div class="container">
+    <div class="columns is-centered">
+      <div class="column is-8">
+        <div class="content">
+          <p>
+            Website template based on
+            <a href="https://github.com/nerfies/nerfies.github.io">
+              Nerfies
+            </a>
+            and licensed under
+            <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">
+              CC-BY-SA-4.0
+            </a>.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
