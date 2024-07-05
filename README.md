@@ -14,6 +14,10 @@
 </p>
 
 <p align="center">
+&rArr; <b>ECCV 2024</b>
+</p>
+
+<p align="center">
 &rArr; <b>code coming soon!</b>
 </p>
 
