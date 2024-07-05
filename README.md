@@ -14,7 +14,7 @@
 </p>
 
 <p align="center">
-&rArr; <b>ECCV 2024</b>
+ <b>ECCV 2024</b>
 </p>
 
 <p align="center">
