@@ -4,7 +4,7 @@
  Johannes S. Fischer<sup>*</sup> · Ming Gui<sup>*</sup> · Pingchuan Ma<sup>*</sup> · 
  <!-- </p>
   <p align="center">  -->
- Nick Stracke · Stefan A. Baumann · Björn Ommer
+ Nick Stracke · Stefan A. Baumann · Vincent Tao Hu · Björn Ommer
  </p>
  <p align="center"> 
 CompVis Group, LMU Munich
