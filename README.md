@@ -65,7 +65,7 @@ Please cite our paper:
 ```bibtex
 @misc{fischer2023boosting,
       title={Boosting Latent Diffusion with Flow Matching}, 
-      author={Johannes S. Fischer and Ming Gui and Pingchuan Ma and Nick Stracke and Stefan A. Baumann and Björn Ommer},
+      author={Johannes S. Fischer and Ming Gui and Pingchuan Ma and Nick Stracke and Stefan A. Baumann and Vincent Tao Hu and Björn Ommer},
       year={2023},
       eprint={2312.07360},
       archivePrefix={arXiv},
