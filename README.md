@@ -14,7 +14,7 @@
 </p>
 
 <p align="center">
- <b>ECCV 2024</b>
+ <b>ECCV 2024 Oral</b>
 </p>
 
 <p align="center">
