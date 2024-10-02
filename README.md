@@ -57,6 +57,45 @@ We can cascade our models to increase the resolution of a $128^2$ px LDM 1.5 gen
 
 You can find more qualitative results on our [project page](https://compvis.github.io/fm-boosting/).
 
+## 🔥 Usage
+
+###
+Please execute the following command to download the first stage autoencoder checkpoint:
+```
+mkdir checkpoints
+wget -O checkpoints/sd_ae.ckpt https://www.dropbox.com/scl/fi/lvfvy7qou05kxfbqz5d42/sd_ae.ckpt?rlkey=fvtu2o48namouu9x3w08olv3o&st=vahu44z5&dl=0
+```
+
+### Data
+For training the model, you have to provide a config file. An example config can be found in `configs/flow400_64-128/unet-base_psu.yaml`. Please customize the data part to your use case. 
+
+In order to speed up the training process, we pre-computed the latents. Your dataloader should return a batch with the following keys, i.e. `image`, `latent`, and `latent_lowres`. Please notice that we use pixel space upsampling (*PSU* in the paper), therefore the `latent` and `latent_lowres` should have the same spatial resolution (refer to L228 `extract_from_batch()` in `fmboost/trainer.py`). 
+
+
+### Training
+
+Afterwards, you can start the training with
+
+```bash
+python3 train.py --config configs/flow400_64-128/unet-base_psu.yaml --name your-name --use_wandb
+```
+
+the flag `--use_wandb` enables logging to WandB. By default, it only logs metrics to a CSV file and tensorboard. All logs are stored in the `logs` folder. You can also define a folder structure for your experiment name, e.g. `logs/exp_name`.
+
+### Resume checkpoint
+
+If you want to resume from a checkpoint, just add the additional parameter
+
+```bash
+... --resume_checkpoint path_to_your_checkpoint.ckpt
+```
+
+This resumes all states from the checkpoint (i.e. optimizer states). If you want to just load weights in a non-strict manner from some checkpoint, use the `--load_weights` argument.
+
+### Inference
+*We will release a pretrained checkpoint and the corresponding inference jupyter notebook soon. Stay tuned!*
+
+
 
 ## 🎓 Citation
 

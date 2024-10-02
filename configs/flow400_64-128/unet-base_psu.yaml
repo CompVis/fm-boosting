@@ -1,0 +1,110 @@
+model:
+  target: fmboost.trainer.TrainerFMBoost
+  params:
+    # the low-resolution image size from which we want to up-sample
+    low_res_size: 512
+    # the high-resolution image size to which we want to up-sample (just
+    # a dummy variable, never used except for printing; must match the
+    # size of the dataset)
+    high_res_size: 1024
+    # ------------------------ context & conditioning
+    # this is the up-sampling mode, either for the latent code if we have a
+    # first stage set, or for the low-resolution image
+    upsampling_mode: psu
+    # up-sampling mode for the concatenated context
+    upsampling_mode_context: psu
+    # up-sampling mode for the cross-attention context
+    upsampling_mode_ca_context: identity
+    # whether we want to start from a gaussian normal with the low-resolution
+    # image as conditioning information (FM) or just the low-resolution image (IC-FM)
+    start_from_noise: False
+    # we can also first noise the image with the forward process of the
+    # diffusion process and do up-sampling from this perturbed image.
+    # If set to -1, we simply take the original image.
+    noising_step: 400
+    # if true, we concatenate the low-resolution image with the noise
+    concat_context: True
+    # if true, we provide input to cross-attention
+    ca_context: False
+    # ------------------------ Flow matching model
+    fm_cfg:
+      target: fmboost.flow.FlowModel
+      params:
+        schedule: linear
+        net_cfg:
+          target: fmboost.models.unet.model.EfficientUNet
+          params:
+            in_channels: 8    # 4 for the low-res image, 4 for the noise
+            model_channels: 128
+            out_channels: 4
+            num_res_blocks: 3
+            channel_mult: [1, 2, 4, 8]
+            # This isn't the resolution but the down-sampling factor.
+            # For each channel multiplier we down-sample the image
+            # by a factor of 2. Hence, the down-sampling factor increases
+            # by a factor of 2 for each channel multiplier. For an image
+            # with size 64x64 and four channel multipliers, the down-sampling
+            # factors are 1, 2, 4, 8. The attention resolutions are then
+            # 64, 32, 16, 8.
+            attention_resolutions: [8, 16]
+            dropout: 0.0
+            conv_resample: True
+            dim_head: 64
+            num_heads: 4
+            use_linear_attn: False
+            use_scale_shift_norm: True
+            pool_factor: -1
+    # ------------------------ first stage (KL-Autoencoder from LDM)
+    scale_factor: 0.18215
+    first_stage_cfg:
+      target: fmboost.kl_autoencoder.AutoencoderKL
+      params:
+        ckpt_path: checkpoints/sd_ae.ckpt
+    # ------------------------ training parameters
+    lr: 3e-5
+    weight_decay: 0.0
+    # lr_scheduler_cfg: ...         # set LR scheduler if wanted
+    ema_rate: 0.999
+    ema_update_every: 1             # EMA update frequency
+    ema_update_after_step: 1000     # warmup steps without EMA
+    use_ema_for_sampling: True      # whether to use EMA model for sampling
+    # tracking metrics
+    metric_tracker_cfg:
+      target: fmboost.metrics.ImageMetricTracker
+      params:
+        num_crops: 4
+        crop_size: 512
+    # lr scheduler
+    lr_scheduler_cfg:
+      target: fmboost.lr_schedulers.get_constant_schedule_with_warmup
+      params:
+        num_warmup_steps: 1000
+    log_grad_norm: True
+
+
+data:
+  name: Your_data
+  target: YourDataModuleFromConfig
+
+
+
+train:
+  # checkpointing
+  checkpoint_callback_params:   # filename refers to number of gradient updates
+    every_n_train_steps: 10000  # gradient update steps
+    save_top_k: -1              # needs to be -1, otherwise it overwrites
+    verbose: True
+    save_last: True
+    auto_insert_metric_name: False
+  trainer_params:
+    max_epochs: -1
+    num_sanity_val_steps: 0
+    accumulate_grad_batches: 1
+    log_every_n_steps: 50       # gradient update steps
+    limit_val_batches: 64
+    val_check_interval: 5000    # steps, regardless of gradient accumulation
+    precision: bf16-mixed
+  callbacks:
+    - target: pytorch_lightning.callbacks.LearningRateMonitor
+      params:
+        logging_interval: 'step'
