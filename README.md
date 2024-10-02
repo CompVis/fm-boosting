@@ -1,7 +1,8 @@
 <p align="center">
- <h2 align="center">🚀 Boosting Latent Diffusion with Flow Matching</h2>
+ <h2 align="center">🚀 FMBoost: Boosting Latent Diffusion with Flow Matching</h2>
  <p align="center"> 
- Johannes S. Fischer<sup>*</sup> · Ming Gui<sup>*</sup> · Pingchuan Ma<sup>*</sup> · 
+ Johannes Schusterbauer-Fischer
+<sup>*</sup> · Ming Gui<sup>*</sup> · Pingchuan Ma<sup>*</sup> · 
  <!-- </p>
   <p align="center">  -->
  Nick Stracke · Stefan A. Baumann ·Vincent Tao Hu · Björn Ommer
