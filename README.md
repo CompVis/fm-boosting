@@ -18,9 +18,6 @@
  <b>ECCV 2024 Oral</b>
 </p>
 
-<p align="center">
-&rArr; <b>code coming soon!</b>
-</p>
 
 [![Website](assets/figs/badge-website.svg)](https://compvis.github.io/fm-boosting/)
 [![Paper](https://img.shields.io/badge/arXiv-PDF-b31b1b)](https://arxiv.org/abs/2312.07360)
