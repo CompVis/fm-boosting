@@ -1,7 +1,7 @@
 <p align="center">
- <h2 align="center">🚀 FMBoost: Boosting Latent Diffusion with Flow Matching</h2>
+ <h2 align="center">🚀 Boosting Latent Diffusion with Flow Matching</h2>
  <p align="center"> 
- Johannes Schusterbauer-Fischer
+ Johannes Schusterbauer
 <sup>*</sup> · Ming Gui<sup>*</sup> · Pingchuan Ma<sup>*</sup> · 
  <!-- </p>
   <p align="center">  -->
@@ -100,12 +100,10 @@ This resumes all states from the checkpoint (i.e. optimizer states). If you want
 Please cite our paper:
 
 ```bibtex
-@misc{fischer2023boosting,
+@InProceedings{schusterbauer2024boosting,
       title={Boosting Latent Diffusion with Flow Matching}, 
-      author={Johannes S. Fischer and Ming Gui and Pingchuan Ma and Nick Stracke and Stefan A. Baumann and Vincent Tao Hu and Björn Ommer},
-      year={2023},
-      eprint={2312.07360},
-      archivePrefix={arXiv},
-      primaryClass={cs.CV}
+      author={Johannes Schusterbauer and Ming Gui and Pingchuan Ma and Nick Stracke and Stefan A. Baumann and Vincent Tao Hu and Björn Ommer},
+      booktitle = {ECCV},
+      year={2024}
 }
 ```
